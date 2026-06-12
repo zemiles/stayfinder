@@ -91,6 +91,10 @@ subprojects {  // 모든 하위 모듈에서 상속받을 설정
 
 		implementation("org.redisson:redisson:3.16.0")
 	}
+
+	tasks.named('test') {
+		useJUnitPlatform()
+	}
 }
 
 project(':corp') {
