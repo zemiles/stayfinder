@@ -12,12 +12,14 @@ import com.vacation.platform.api.util.StayFinderResponseDTO;
 import com.vacation.platform.corp.corperation.dto.CorpUserDTO;
 import com.vacation.platform.corp.corperation.entity.CorpStatus;
 import com.vacation.platform.corp.corperation.entity.CorporateUser;
+import com.vacation.platform.corp.corperation.entity.Corporation;
 import com.vacation.platform.corp.corperation.repository.CorporateUserRepository;
 import com.vacation.platform.corp.corperation.repository.CorporationRepository;
 import com.vacation.platform.corp.corperation.service.CorporationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -33,10 +35,12 @@ public class CorporationServiceImpl implements CorporationService {
 
     private final LoginServiceImpl loginServiceImpl;
 
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Override
     @Transactional
     public StayFinderResponseDTO<?> createCorporationUser(CorpUserDTO corpUserDTO) {
-         corporationRepository.findByBusinessLicense(corpUserDTO.getBusinessLicense(), CorpStatus.REGISTERED)
+         Corporation corporation = corporationRepository.findByBusinessLicense(corpUserDTO.getBusinessLicense(), CorpStatus.REGISTERED)
                 .orElseThrow( () -> new StayFinderException(ErrorType.BUSINESS_LICENSE_IS_NOT_VALID,
                         Map.of("businessLicense", corpUserDTO.getBusinessLicense()), log::error));
 
@@ -48,11 +52,13 @@ public class CorporationServiceImpl implements CorporationService {
 
         CorporateUser corporateUser = new CorporateUser();
         corporateUser.setEmail(corpUserDTO.getEmail());
-        corporateUser.setPassword(corpUserDTO.getPassword());
+        corporateUser.setPassword(bCryptPasswordEncoder.encode(corpUserDTO.getPassword()));
         corporateUser.setPhoneNumber(corpUserDTO.getCorpPhoneNumber());
         corporateUser.setRole(Role.ROLE_CORP_USER);
+        corporateUser.setCorporation(corporation);
 
-        corporateUserRepository.save(corporateUser);
+        CorporateUser savedCorporateUser = corporateUserRepository.save(corporateUser);
+        corporation.setCorporateUser(savedCorporateUser);
 
         return StayFinderResponseDTO.success();
     }
@@ -65,7 +71,7 @@ public class CorporationServiceImpl implements CorporationService {
                             Map.of("email", loginDTO.getEmail()), log::error)
                 );
 
-        loginServiceImpl.passwordValidate(loginDTO);
+        loginServiceImpl.passwordValidate(loginDTO.getPassword(), corporateUser.getPassword());
 
         JwtTokenResponse accessTokenResponse = loginServiceImpl.getAccessToken(loginDTO, Map.of("role", corporateUser.getRole()));
 

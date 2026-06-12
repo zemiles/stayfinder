@@ -34,7 +34,7 @@ public class CorporateUser extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 
-	@OneToOne
-	@JoinColumn(name = "corp_user_id")
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "corporation_id")
 	private Corporation corporation;
 }

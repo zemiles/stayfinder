@@ -1,15 +1,16 @@
 package com.vacation.platform.api.login.repository;
 
 import com.vacation.platform.api.login.entity.UserAuth;
-import io.lettuce.core.dynamic.annotation.Param;
+import com.vacation.platform.api.login.entity.UserAuthId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserAuthRepository extends JpaRepository<UserAuth, Long> {
+public interface UserAuthRepository extends JpaRepository<UserAuth, UserAuthId> {
 
     Optional<UserAuth> findByUserId(Long userId);
 

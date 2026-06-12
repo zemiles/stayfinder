@@ -51,12 +51,12 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "user")
     private List<TermsUserAgreement> termsUserAgreementList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "user")
     private List<CertifyReq> certifyReqList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "user")
     private List<UserAuth> userAuth = new ArrayList<>();
 }

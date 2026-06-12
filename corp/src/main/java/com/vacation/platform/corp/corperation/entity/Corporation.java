@@ -42,8 +42,7 @@ public class Corporation extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CorpStatus corpStatus;
 
-    @OneToOne
-    @JoinColumn(name = "corp_user_id")
+    @OneToOne(mappedBy = "corporation")
     private CorporateUser corporateUser;
 
     @OneToMany(mappedBy = "corporation", cascade = CascadeType.ALL)

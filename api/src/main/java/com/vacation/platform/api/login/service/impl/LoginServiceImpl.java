@@ -19,7 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -47,7 +46,7 @@ public class LoginServiceImpl implements LoginService {
                         log::error
                 ));
 
-        this.passwordValidate(loginDTO);
+        this.passwordValidate(loginDTO.getPassword(), user.getPassword());
 
         JwtTokenResponse accessTokenResponse = this.getAccessToken(loginDTO, Map.of("role", user.getRole()));
 
@@ -88,19 +87,17 @@ public class LoginServiceImpl implements LoginService {
             JwtTokenResponse accessTokenResponse = jwtUtil.generateToken(email, ACCESS_TOKEN_TIME, Map.of("role", user.getRole()));
 
 
-            tokenRedisService.saveToken(accessTokenResponse.getToken(), email, ACCESS_TOKEN_TIME, TimeUnit.DAYS);
+            tokenRedisService.saveToken(accessTokenResponse.getToken(), email, ACCESS_TOKEN_TIME);
             return StayFinderResponseDTO.success(accessTokenResponse.getToken());
         }
 
         throw new StayFinderException(ErrorType.TOKEN_IS_NOT_VALID, Map.of("refreshToken", refreshToken), log::error);
     }
 
-    public void passwordValidate(LoginDTO loginDTO) {
-        String encodePassword = bCryptPasswordEncoder.encode(loginDTO.getPassword());
-
-        if(!bCryptPasswordEncoder.matches(loginDTO.getPassword(), encodePassword)) {
+    public void passwordValidate(String rawPassword, String encodedPassword) {
+        if(!bCryptPasswordEncoder.matches(rawPassword, encodedPassword)) {
             throw new StayFinderException(ErrorType.USER_PASSWORD_NOT_MATCHED,
-                    Map.of("password", loginDTO.getPassword()),
+                    Map.of(),
                     log::error
             );
         }
@@ -115,8 +112,8 @@ public class LoginServiceImpl implements LoginService {
     }
 
     public void TokenSaves(JwtTokenResponse accessToken,  JwtTokenResponse refreshToken, LoginDTO loginDTO) {
-        tokenRedisService.saveToken(accessToken.getToken(), loginDTO.getEmail(), ACCESS_TOKEN_TIME, TimeUnit.DAYS);
-        tokenRedisService.saveToken(loginDTO.getEmail(), refreshToken.getToken(), REFRESH_TOKEN_TIME, TimeUnit.DAYS);
+        tokenRedisService.saveToken(accessToken.getToken(), loginDTO.getEmail(), ACCESS_TOKEN_TIME);
+        tokenRedisService.saveToken(loginDTO.getEmail(), refreshToken.getToken(), REFRESH_TOKEN_TIME);
     }
 
 }

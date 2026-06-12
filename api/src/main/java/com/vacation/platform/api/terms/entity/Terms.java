@@ -39,6 +39,6 @@ public class Terms extends BaseEntity {
     @OneToMany(mappedBy = "terms")
     private List<TermsSub> subList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "termsId")
+    @OneToMany(mappedBy = "terms")
     private List<TermsUserAgreement> termsUserAgreementList = new ArrayList<>();
 }

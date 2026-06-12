@@ -14,7 +14,7 @@ public class ReservationController {
 	private final ReservationService reservationService;
 
 	@PostMapping("/create")
-	public StayFinderResponseDTO<?> createReservation(@RequestHeader String token, @RequestBody ReservationDTO reservationDTO) {
+	public StayFinderResponseDTO<?> createReservation(@RequestHeader("Authorization") String token, @RequestBody ReservationDTO reservationDTO) {
 		return reservationService.createReservation(token, reservationDTO);
 	}
 

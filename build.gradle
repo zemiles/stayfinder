@@ -34,6 +34,14 @@ subprojects {  // 모든 하위 모듈에서 상속받을 설정
 	group = 'com.example'
 	version = '1.0.0'
 
+	sourceSets {
+		main {
+			resources {
+				srcDir "${rootProject.projectDir}/src/main/resources"
+			}
+		}
+	}
+
 	repositories {
 		mavenCentral()  // 모든 하위 모듈에서 Maven Central 사용
 	}
@@ -82,6 +90,20 @@ subprojects {  // 모든 하위 모듈에서 상속받을 설정
 		implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0'
 
 		implementation("org.redisson:redisson:3.16.0")
+	}
+}
+
+project(':corp') {
+	dependencies {
+		implementation project(':api')
+	}
+}
+
+project(':batch') {
+	dependencies {
+		implementation project(':api')
+		implementation project(':corp')
+		implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	}
 }
 

@@ -102,7 +102,7 @@ public class RoomStockServiceImpl implements RoomStockService {
 	}
 
 	@Override
-	public Map<LocalDate, RoomStock> allocateRoomStocks(ReservationDTO reservationDTO) {
+	public Map<LocalDate, RoomStock> allocateRoomStocks(ReservationDTO reservationDTO, Reservation reservation) {
 		List<RoomUnit> roomUnits = roomUnitRepository.findByRoomId(reservationDTO.getRoomId());
 		Map<LocalDate, RoomStock> allocationMap = new HashMap<>();
 
@@ -161,8 +161,7 @@ public class RoomStockServiceImpl implements RoomStockService {
 					}
 
 					for (RoomStock stock : roomStockList) {
-						Reservation reservation = stock.getReservation();
-						reservation.setReservationId(-1L);
+						stock.setReservation(reservation);
 						roomStockRepository.save(stock);
 						allocationMap.put(stock.getStockDate(), stock);
 					}
@@ -191,10 +190,8 @@ public class RoomStockServiceImpl implements RoomStockService {
 							if (lock.tryLock(10, TimeUnit.SECONDS)) {
 								try {
 									Optional<RoomStock> recheckOpt = roomStockRepository.findById(stock.getRoomStockId());
-									if (recheckOpt.isPresent() && recheckOpt.get().getReservation().getReservationId() == null) {
+									if (recheckOpt.isPresent() && recheckOpt.get().getReservation() == null) {
 										RoomStock availableStock = recheckOpt.get();
-										Reservation reservation = availableStock.getReservation();
-										reservation.setReservationId(-1L);
 										availableStock.setReservation(reservation);
 										roomStockRepository.save(availableStock);
 										allocationMap.put(date, availableStock);

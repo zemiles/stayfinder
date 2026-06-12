@@ -10,8 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -40,12 +40,14 @@ public class TermsController {
     }
 
     @GetMapping("/sub")
-    public StayFinderResponseDTO<List<TermsDto.SubResponseDto>> getSub(@Valid @RequestBody TermsDto termsDto) {
-        if(termsDto == null)
+    public StayFinderResponseDTO<List<TermsDto.SubResponseDto>> getSub(@Valid @RequestParam("termsMainId") Long termsMainId) {
+        if(termsMainId == null)
             throw new StayFinderException(ErrorType.DTO_NOT_FOUND,
                     Map.of("error", "termsDto 가 존재하지 않습니다."),
                     log::error);
 
+        TermsDto termsDto = new TermsDto();
+        termsDto.setTermsMainId(termsMainId);
         return termsService.getTermsSub(termsDto);
     }
 

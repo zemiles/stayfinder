@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -20,8 +19,8 @@ public class TokenRedisService {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public void saveToken(String email, String token, long seconds, TimeUnit timeUnit) {
-        stringRedisTemplate.opsForValue().set(email, token, seconds, timeUnit);
+    public void saveToken(String key, String token, long milliseconds) {
+        stringRedisTemplate.opsForValue().set(key, token, milliseconds, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     public Optional<String> getToken(String token) {

@@ -23,6 +23,7 @@ public class UserAuth extends BaseEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Id
     @Column(name = "user_id", nullable = false)
     private Long userId;
 

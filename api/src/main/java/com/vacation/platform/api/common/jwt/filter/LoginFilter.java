@@ -27,7 +27,8 @@ public class LoginFilter extends OncePerRequestFilter {
     private final TokenRedisService tokenRedisService;
 
     private static final List<String> FILTERED_URLS = List.of("/api/v1/certify", "/api/v1/terms",
-            "/api/v1/users", "/api/v1/user/login", "/api/v1/corp/request/approval", "/api/v1/search");
+            "/api/v1/users", "/api/v1/user/login", "/api/v1/user/refresh", "/api/v1/corp/create",
+            "/api/v1/corp/user/login", "/api/v1/corp/user/refresh", "/api/v1/corp/request/approval", "/api/v1/search");
 
     public LoginFilter(JwtUtil jwtUtil, TokenRedisService tokenRedisService) {
         this.jwtUtil = jwtUtil;
@@ -63,7 +64,7 @@ public class LoginFilter extends OncePerRequestFilter {
                 return;
             }
 
-            if(!request.getServletPath().equals("/api/v1/user/refresh") || !request.getServletPath().equals("/api/v1/corp/user/refresh")) {
+            if(!request.getServletPath().equals("/api/v1/user/refresh") && !request.getServletPath().equals("/api/v1/corp/user/refresh")) {
                 if(tokenRedisService.getToken(authHeader).isEmpty()) {
                     log.error("Access Token이 존재하지 않습니다.");
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Token이 존재하지 않습니다.");

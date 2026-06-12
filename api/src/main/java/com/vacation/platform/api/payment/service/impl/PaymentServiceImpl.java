@@ -56,7 +56,8 @@ public class PaymentServiceImpl implements PaymentHistoryService {
 					return paymentHistoryRepository.save(paymentHistory);
 				});
 
-		resultPaymentHistory.setAttemptNumber(resultPaymentHistory.getAttemptNumber() + 1);
+		int attemptNumber = resultPaymentHistory.getAttemptNumber() == null ? 0 : resultPaymentHistory.getAttemptNumber();
+		resultPaymentHistory.setAttemptNumber(attemptNumber + 1);
 
 		try {
 			// 결제 요청 처리

@@ -11,8 +11,11 @@ import com.vacation.platform.api.util.StayFinderResponseDTO;
 import com.vacation.platform.corp.corperation.entity.room.RoomStock;
 import com.vacation.platform.corp.corperation.service.RoomStockService;
 import com.vacation.platform.corp.reservation.dto.ReservationDTO;
+import com.vacation.platform.corp.reservation.entity.Reservation;
 import com.vacation.platform.corp.reservation.entity.ReservationRequestHistory;
 import com.vacation.platform.corp.reservation.entity.ReservationRoomStock;
+import com.vacation.platform.corp.reservation.entity.ReservationStatus;
+import com.vacation.platform.corp.reservation.repository.ReservationRepository;
 import com.vacation.platform.corp.reservation.repository.ReservationRequestHistoryRepository;
 import com.vacation.platform.corp.reservation.repository.ReservationRoomStockRepository;
 import com.vacation.platform.corp.reservation.service.ReservationService;
@@ -34,17 +37,20 @@ public class ReservationServiceImpl implements ReservationService {
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
 	private final PaymentServiceImpl paymentService;
+	private final ReservationRepository reservationRepository;
 	private final ReservationRequestHistoryRepository reservationRequestHistoryRepository;
 	private final ReservationRoomStockRepository reservationRoomStockRepository;
 
 	public ReservationServiceImpl(RoomStockService roomStockService,  JwtUtil jwtUtil, UserRepository userRepository,
-	                              PaymentServiceImpl paymentService, ReservationRequestHistoryRepository reservationRequestHistoryRepository,
+	                              PaymentServiceImpl paymentService, ReservationRepository reservationRepository,
+	                              ReservationRequestHistoryRepository reservationRequestHistoryRepository,
 	                              ReservationRoomStockRepository reservationRoomStockRepository) {
 
 		this.roomStockService = roomStockService;
 		this.jwtUtil =  jwtUtil;
 		this.userRepository = userRepository;
 		this.paymentService = paymentService;
+		this.reservationRepository = reservationRepository;
 		this.reservationRequestHistoryRepository = reservationRequestHistoryRepository;
 		this.reservationRoomStockRepository = reservationRoomStockRepository;
 	}
@@ -57,11 +63,18 @@ public class ReservationServiceImpl implements ReservationService {
 			throw new StayFinderException(ErrorType.ROOM_RESERVATION_30, Map.of("Date", reservationDays), log::error);
 		}
 
-		Map<LocalDate, RoomStock> allocationMap = roomStockService.allocateRoomStocks(reservationDTO);
-
 		User user = userRepository.findByEmail(jwtUtil.getUserEmail(token))
 				.orElseThrow( () -> new StayFinderException(ErrorType.USER_NOT_FOUND, Map.of("ReservationDTO", reservationDTO.toString()),
 						log::error));
+
+		Reservation reservation = new Reservation();
+		reservation.setUser(user);
+		reservation.setCheckInDate(reservationDTO.getCheckIn());
+		reservation.setCheckOutDate(reservationDTO.getCheckOut());
+		reservation.setStatus(ReservationStatus.PENDING.name());
+		Reservation savedReservation = reservationRepository.save(reservation);
+
+		Map<LocalDate, RoomStock> allocationMap = roomStockService.allocateRoomStocks(reservationDTO, savedReservation);
 
 		ReservationRequestHistory requestHistory = new ReservationRequestHistory();
 		requestHistory.setUserId(user.getUserId());
@@ -77,8 +90,8 @@ public class ReservationServiceImpl implements ReservationService {
 
 		for (Map.Entry<LocalDate, RoomStock> entry : allocationMap.entrySet()) {
 			ReservationRoomStock mapping = new ReservationRoomStock();
-			mapping.getReservation().setReservationId(null);
-			mapping.getRoomStock().setRoomStockId(entry.getValue().getRoomStockId());
+			mapping.setReservation(savedReservation);
+			mapping.setRoomStock(entry.getValue());
 			mapping.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 			reservationRoomStockRepository.save(mapping);
 		}
@@ -87,7 +100,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 		paymentHistoryDTO.setAmount(reservationDTO.getAmount());
 		paymentHistoryDTO.setPaymentMethod(reservationDTO.getPayMethod());
-		paymentHistoryDTO.setReservationId(null);
+		paymentHistoryDTO.setReservationId(savedReservation.getReservationId());
 		paymentHistoryDTO.setUserId(user.getUserId());
 
 		paymentService.requestPayment(paymentHistoryDTO);
