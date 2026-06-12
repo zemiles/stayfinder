@@ -2,32 +2,35 @@ package com.vacation.platform.batch.room_produce.config;
 
 import com.vacation.platform.batch.room_produce.AutowiringSpringBeanJobFactory;
 import com.vacation.platform.batch.room_produce.job.RoomStockJob;
-import lombok.AllArgsConstructor;
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
 
-@Component
-@AllArgsConstructor
 @Configuration
 public class RoomStockConfig {
 
 	@Bean
-	public Trigger roomStockJobTrigger(JobDetail roomStockJobDetail) {
+	public Trigger roomStockJobTrigger(
+			JobDetail roomStockJobDetail,
+			@Value("${batch.room-stock.cron:0 0 2 * * ?}") String cronExpression) {
 		return TriggerBuilder.newTrigger()
 				.forJob(roomStockJobDetail)
 				.withIdentity("RoomStockJobTrigger")
-				.withSchedule(CronScheduleBuilder.cronSchedule("0 0/1 * * * ?"))
+				.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
 				.build();
 	}
 
 	@Bean
 	public JobDetail roomStockJobDetail() {
 		return JobBuilder.newJob(RoomStockJob.class)
-				.withIdentity("RoomStockJobJob")
+				.withIdentity("RoomStockJob")
 				.storeDurably()
 				.build();
 	}
@@ -48,7 +51,7 @@ public class RoomStockConfig {
 		factory.setJobFactory(jobFactory);
 		factory.setJobDetails(roomStockJobDetail);
 		factory.setTriggers(roomStockJobTrigger);
+		factory.setOverwriteExistingJobs(true);
 		return factory;
 	}
-
 }

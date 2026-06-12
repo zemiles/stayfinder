@@ -11,5 +11,7 @@ import java.util.Map;
 @Service
 public interface RoomStockService {
 	void generateTodayRoomStock();
+	void generateRollingRoomStock(int days);
+	void generateRoomStock(LocalDate startDate, LocalDate endDate);
 	Map<LocalDate, RoomStock> allocateRoomStocks(ReservationDTO reservationDTO, Reservation reservation);
 }

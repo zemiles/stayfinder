@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StayFinder - 당신의 여행을 위한 최고의 선택</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.5);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.3em;
+    }
+
+    p {
+      font-size: 1.2em;
+      max-width: 600px;
+    }
+
+    .button-group {
+      margin-top: 2em;
+    }
+
+    .btn {
+      background-color: #ffcc00;
+      color: black;
+      border: none;
+      padding: 0.8em 2em;
+      margin: 0 10px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #ffdb4d;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2em;
+      }
+
+      .btn {
+        width: 100%;
+        margin: 10px 0;
+      }
+
+      .button-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>StayFinder</h1>
+    <p>여행지에서 머물 곳을 찾고 있다면, StayFinder가 도와드릴게요! 전 세계의 아름다운 숙소를 쉽고 빠르게 검색해보세요.</p>
+    <div class="button-group">
+      <button class="btn" onclick="location.href='login.html'">로그인</button>
+      <button class="btn" onclick="location.href='signup.html'">회원가입</button>
+    </div>
+  </div>
+</body>
+</html>

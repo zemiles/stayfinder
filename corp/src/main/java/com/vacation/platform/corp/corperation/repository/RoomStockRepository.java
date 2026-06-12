@@ -15,7 +15,7 @@ public interface RoomStockRepository extends JpaRepository<RoomStock, Long> {
 	Optional<RoomStock> findByRoomUnitIdAndStockDate(Long roomUnitId, LocalDate stockDate);
 
 	@Query("SELECT COUNT(rs) FROM RoomStock rs JOIN RoomUnit ru ON rs.roomUnit.roomUnitId = ru.roomUnitId WHERE ru.room.roomId = :roomId AND rs.stockDate = :stockDate AND rs.reservation IS NULL")
-	Optional<Integer> countAvailableByRoomIdAndStockDate(@Param("roomId") Long roomId, @Param("stockDate") LocalDate stockDate);
+	Optional<Long> countAvailableByRoomIdAndStockDate(@Param("roomId") Long roomId, @Param("stockDate") LocalDate stockDate);
 
 	@Query(value = "SELECT * FROM room_stock WHERE room_unit_id = :roomUnitId AND stock_date = :stockDate AND reservation_id IS NULL", nativeQuery = true)
 	Optional<RoomStock> findByRoomUnitIdAndStockDateAndReservationIdIsNull(Long  roomUnitId, LocalDate stockDate);

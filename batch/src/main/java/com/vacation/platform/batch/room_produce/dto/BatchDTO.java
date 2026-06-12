@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class BatchDTO {
 	private String batchName;
+	private Integer days;
 }

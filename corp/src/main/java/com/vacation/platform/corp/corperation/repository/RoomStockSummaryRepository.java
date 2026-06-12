@@ -1,6 +1,7 @@
 package com.vacation.platform.corp.corperation.repository;
 
 import com.vacation.platform.corp.corperation.entity.room.RoomStockSummary;
+import com.vacation.platform.corp.corperation.entity.room.RoomStockSummaryId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface RoomStockSummaryRepository extends JpaRepository<RoomStockSummary, Long> {
+public interface RoomStockSummaryRepository extends JpaRepository<RoomStockSummary, RoomStockSummaryId> {
 
 	@Query("SELECT rts FROM RoomStockSummary rts WHERE rts.roomStockSummaryId.roomId = :roomId AND rts.roomStockSummaryId.stockDate = :stockDate")
 	Optional<RoomStockSummary> findByRoomIdAndStockDate(Long roomId, LocalDate stockDate);
